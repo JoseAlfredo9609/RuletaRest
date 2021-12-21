@@ -1,0 +1,1 @@
+INSERT INTO ruletas  (estado_ruleta, dinero_apertura, dinero_cierre, numero) VALUES();
