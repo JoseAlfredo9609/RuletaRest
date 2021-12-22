@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -48,19 +49,20 @@ public class RuletaController
 		return new ResponseEntity<Integer>(ruletaGuardada.getId(), HttpStatus.CREATED);
 	}
 	
-	@PutMapping("/upd/ruleta/{ruletaId}")
-	public ResponseEntity<?> actualizarRuleta(@PathVariable Integer ruletaId,  @RequestBody Ruleta ruleta )
+	@GetMapping("/activar/{ruletaId}")
+	public ResponseEntity<?> activarRuleta(@PathVariable Integer ruletaId )
 	{
 		Optional<Ruleta> oRuleta = ruletaDao.buscarPorId(ruletaId);
 		
 		if(!oRuleta.isPresent()) {
-			throw new NotFoundException(String.format("Cliente con ID: %d no existe", ruletaId));
+			throw new NotFoundException(String.format("Ruleta con ID: %d no existe", ruletaId));
 
 		}
 		
-		Ruleta ruletaActiva = ruletaDao.actualizar(oRuleta.get(), ruleta);
-		return new ResponseEntity<Ruleta>(ruletaActiva, HttpStatus.OK);
+		ruletaDao.activar(oRuleta.get());
+		return  ResponseEntity.status(HttpStatus.OK).header("Operacion Exitosa").body("Operacion exitosa");
 	}
+	
 	
 	@PutMapping("/apuesta/{ruletaId}")
 	public ResponseEntity<?> actualizarApuesta(@PathVariable Integer ruletaId,  @RequestBody Ruleta ruleta )
@@ -68,11 +70,34 @@ public class RuletaController
 		Optional<Ruleta> apuesta = ruletaDao.buscarPorId(ruletaId);
 		
 		if(!apuesta.isPresent()) {
-			throw new NotFoundException(String.format("Cliente con ID: %d no existe", ruletaId));
+			throw new NotFoundException(String.format("Ruleta con ID: %d no existe", ruletaId));
+		}
+		Ruleta apuestaActulizada = ruletaDao.apuesta(apuesta.get(), ruleta);
+		return new ResponseEntity<Ruleta>(apuestaActulizada, HttpStatus.OK);
+	}
+	
+	@GetMapping("/upd/cerrar/{ruletaId}")
+	public ResponseEntity<?> cerrarRuleta(@PathVariable Integer ruletaId )
+	{
+		Optional<Ruleta> oRuleta = ruletaDao.buscarPorId(ruletaId);
+		
+		if(!oRuleta.isPresent()) {
+			throw new NotFoundException(String.format("Ruleta con ID: %d no existe", ruletaId));
 
 		}
 		
-		Ruleta apuestaActulizada = ruletaDao.apuesta(apuesta.get(), ruleta);
-		return new ResponseEntity<Ruleta>(apuestaActulizada, HttpStatus.OK);
+		ruletaDao.cerrar(oRuleta.get());
+		ruletaDao.comparar(oRuleta.get());
+		return  ResponseEntity.status(HttpStatus.OK).header("Operacion Exitosa").body(String.format("Lo sentimos perdio "));
+	}
+	
+	@GetMapping("/ruletas")
+	public ResponseEntity<?> buscartodos()
+	{
+		List<Ruleta> ruletas = (List<Ruleta>) ruletaDao.buscarTodos();
+		
+		if(ruletas.isEmpty())
+			throw new NotFoundException("No existen clientes");
+		return new ResponseEntity<List<Ruleta>>(ruletas, HttpStatus.OK);  
 	}
 }

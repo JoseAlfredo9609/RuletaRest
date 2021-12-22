@@ -13,4 +13,15 @@ public interface RuletaDAO
 	public Ruleta actualizar(Ruleta ruletaEncontrada, Ruleta clienteActualizar); 
 	
 	public Ruleta apuesta(Ruleta ruletaEncontrada, Ruleta ruletaActualizar);
+	
+	public Ruleta activar(Ruleta ruletaEncontrada);
+	
+	public Ruleta cerrar(Ruleta ruletaEncontrada);
+	
+	public Ruleta comparar(Ruleta ruletaEncontrada);
+	
+	public Iterable<Ruleta> buscarTodos();
+	
+
+	
 }
