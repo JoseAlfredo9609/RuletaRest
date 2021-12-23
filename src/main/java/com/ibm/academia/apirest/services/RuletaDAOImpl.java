@@ -56,7 +56,9 @@ public class RuletaDAOImpl implements RuletaDAO
 	public Ruleta activar(Ruleta ruletaEncontrada) {
 		Ruleta ruletaActulizada = null;
 		ruletaEncontrada.setEstadoRuleta(true);
-		ruletaEncontrada.setNumero((int) (Math.random()*35+1));
+		ruletaEncontrada.setNumero((int) Math.random());
+		ruletaEncontrada.setDineroApertura(100000);
+		ruletaEncontrada.setDineroCierre(ruletaEncontrada.getDineroApertura());
 		ruletaActulizada = ruletaRepository.save(ruletaEncontrada);
 		return ruletaActulizada;
 	}
@@ -73,9 +75,16 @@ public class RuletaDAOImpl implements RuletaDAO
 	@Override
 	public Ruleta comparar(Ruleta ruletaEncontrada) {
 		
-		if(ruletaEncontrada.getNumero() == ruletaEncontrada.getNumeroCliente())
+		if(ruletaEncontrada.getNumero() == ruletaEncontrada.getNumeroCliente()) {
+			ruletaEncontrada.setDineroCierre(ruletaEncontrada.getDineroCierre() - ruletaEncontrada.getApuestaCliente()*2);
+			ruletaEncontrada = ruletaRepository.save(ruletaEncontrada);
 			throw new NotFoundException(String.format("Felicidades gano"));
-		
+			
+		}
+		else {
+		ruletaEncontrada.setDineroCierre(ruletaEncontrada.getDineroCierre() + ruletaEncontrada.getApuestaCliente());
+		ruletaEncontrada = ruletaRepository.save(ruletaEncontrada);
+		}
 		return ruletaEncontrada;
 	}
 
